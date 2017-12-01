@@ -18,18 +18,21 @@
   (b [this] (:e2 this)))
 
 ;; For test
-(defonce v1 (->Vec3 1 2 3))
+(defonce v_test (->Vec3 1 2 3))
 
 (defmethod print-method Vec3 [x ^java.io.Writer w]
   (.write w (str (:e0 x) " " (:e1 x) " " (:e2 x))))
 
-(defmulti %apply-vec (fn [f this value] (class value)))
+(defmulti %apply-vec (fn [f v1 v2] [(class v1) (class v2)]))
 
-(defmethod ^Vec3 %apply-vec Vec3 [f this v1]
-  (apply ->Vec3 (map f (vals this) (vals v1))))
+(defmethod ^Vec3 %apply-vec [Vec3 Vec3] [f v1 v2]
+  (apply ->Vec3 (map f (vals v1) (vals v2))))
 
-(defmethod ^Vec3 %apply-vec Number [f this v1]
-  (apply ->Vec3 (map #(f % v1) (vals this))))
+(defmethod ^Vec3 %apply-vec [Number Vec3] [f v1 v2]
+  (apply ->Vec3 (map #(f v1 %) (vals v2))))
+
+(defmethod ^Vec3 %apply-vec [Vec3 Number] [f v1 v2]
+  (apply ->Vec3 (map #(f % v2) (vals v1))))
 
 (defn ^Vec3 apply-vec
   ([f v]
@@ -40,35 +43,45 @@
 ;; Calc methods
 
 (defn plus
-  ([this]
-   this)
-  ([this v1]
-   (apply-vec + this v1)))
+  ([v] v)
+  ([v1 v2]
+   (apply-vec + v1 v2)))
 
 (defn minus
-  ([this]
-   (apply-vec - this))
-  ([this v1]
-   (apply-vec - this v1)))
+  ([v]
+   (apply-vec - v))
+  ([v1 v2]
+   (apply-vec - v1 v2)))
 
-(defn times [this v1]
-  (apply-vec * this v1))
+(defn times [v1 v2]
+  (apply-vec * v1 v2))
 
-(defn divs [this v1]
-  (apply-vec / this v1))
+(defn divs [v1 v2]
+  (apply-vec / v1 v2))
 
 ;; Definition methods
 
-(defn make-unit-vector [this]
-  (let [elems (vals this)
+(defn make-unit-vector [v]
+  (let [elems (vals v)
         k (/ 1.0 (Math/sqrt (reduce + (map * elems elems))))]
     (apply ->Vec3 (map #(* %1 k) elems))))
 
-(defn squared-length [this]
-  (reduce + (map #(* % %) (vals this))))
+(defn squared-length [v]
+  (reduce + (map #(* % %) (vals v))))
 
-(defn length [this]
-  (Math/sqrt (squared-length this)))
+(defn vector-length [v]
+  (Math/sqrt (squared-length v)))
+
+(defn dot [v1 v2]
+  (reduce + (map * (vals v1) (vals v2))))
+
+(defn cross [v1 v2]
+  (->Vec3    (- (* (:e1 v1) (:e2 v2)) (* (:e2 v1) (:e1 v2)))
+          (- (- (* (:e0 v1) (:e2 v2)) (* (:e2 v1) (:e0 v2))))
+             (- (* (:e0 v1) (:e1 v2)) (* (:e1 v1) (:e0 v2)))))
+
+(defn unit-vector [v]
+  (divs v (vector-length v)))
 
 ;; Equality
 
@@ -81,10 +94,10 @@
 (defn float-vec? [v]
   (reduce #(or %1 %2) (map float? (vals v))))
 
-(defmulti equals (fn [this v1] (or (float-vec? this) (float-vec? v1))))
+(defmulti equals (fn [v1 v2] (or (float-vec? v1) (float-vec? v2))))
 
-(defmethod equals false [this v1]
-  (.equals this v1))
+(defmethod equals false [v1 v2]
+  (.equals v1 v2))
 
-(defmethod equals true [this v1]
-  (reduce #(or %1 %2) (map #(close? 0.00001 %1 %2) (vals this) (vals v1))))
+(defmethod equals true [v1 v2]
+  (reduce #(and %1 %2) (map #(close? 0.00001 %1 %2) (vals v1) (vals v2))))
