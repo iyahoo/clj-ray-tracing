@@ -5,5 +5,5 @@
 
 (deftest raymethods
   (testing "point-at-parameter"
-    (is (equals (point-at-parameter (->Ray3 (->Vec3 1 2 3) (->Vec3 1 2 3)) 2)
+    (is (equals (point-at-parameter (->Ray (->Vec3 1 2 3) (->Vec3 1 2 3)) 2)
                 (->Vec3 3 6 9)))))

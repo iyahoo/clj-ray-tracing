@@ -25,7 +25,8 @@
     (is (equals (plus v)   (->Vec3 1 2 3)))
     (is (equals (plus v v) (->Vec3 2 4 6)))
     (is (equals (plus v 1) (->Vec3 2 3 4)))
-    (is (equals (plus 1 v) (->Vec3 2 3 4))))
+    (is (equals (plus 1 v) (->Vec3 2 3 4)))
+    (is (equals (plus v v v) (->Vec3 3 6 9))))
   (testing "minus"
     (is (equals (minus v)   (->Vec3 -1 -2 -3)))
     (is (equals (minus v v) (->Vec3 0 0 0)))
