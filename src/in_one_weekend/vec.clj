@@ -45,19 +45,29 @@
 (defn plus
   ([v] v)
   ([v1 v2]
-   (apply-vec + v1 v2)))
+   (apply-vec + v1 v2))
+  ([v1 v2 & more]
+   (reduce plus (plus v1 v2) more)))
 
 (defn minus
   ([v]
    (apply-vec - v))
   ([v1 v2]
-   (apply-vec - v1 v2)))
+   (apply-vec - v1 v2))
+  ([v1 v2 & more]
+   (reduce minus (minus v1 v2) more)))
 
-(defn times [v1 v2]
-  (apply-vec * v1 v2))
+(defn times
+  ([v1 v2]
+   (apply-vec * v1 v2))
+  ([v1 v2 & more]
+   (reduce times (times v1 v2) more)))
 
-(defn divs [v1 v2]
-  (apply-vec / v1 v2))
+(defn divs
+  ([v1 v2]
+   (apply-vec / v1 v2))
+  ([v1 v2 & more]
+   (reduce divs (divs v1 v2) more)))
 
 ;; Definition methods
 
