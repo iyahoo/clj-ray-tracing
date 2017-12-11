@@ -10,5 +10,4 @@
 (defn get-ray [[v u] camera]
   {:pre [(= (class camera) Camera)]}
   (let [{:keys [lower-left-corner horizontal vertical origin]} camera]
-    (->Ray origin (plus lower-left-corner(times u horizontal) (times v vertical)))))
-
+    (->Ray origin (plus lower-left-corner (times u horizontal) (times v vertical)))))

@@ -6,4 +6,5 @@
   :dependencies [[org.clojure/clojure "1.9.0"]]
   :main ^:skip-aot in-one-weekend.core
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}})
+  :profiles {:uberjar {:aot :all}}
+  :eastwood {:add-linters [:keyword-typos]})

@@ -4,21 +4,21 @@
             [in-one-weekend.ray :refer :all]
             [in-one-weekend.hitable-list :refer :all]
             [in-one-weekend.sphere :refer :all]
-            [in-one-weekend.camera :refer :all])
+            [in-one-weekend.camera :refer :all]
+            [in-one-weekend.material :refer :all])
+  (:import [in_one_weekend.ray Ray]
+           [in_one_weekend.hitable_list Hitable-list])
   (:gen-class))
 
-(defn random-in-unit-sphere []
-  (let [p (squared-length (times 2.0 (minus (->Vec3 (rand) (rand) (rand)) (->Vec3 1 1 1))))]
-    (if (>= p 1.0)
-      p
-      (recur))))
-
-(defn color [r world]
+(defn color [r world depth]
+  {:pre [(= (class r) Ray) (= (class world) Hitable-list)]}
   (let [{:keys [result rec]} (hit world r 0.001 Float/MAX_VALUE)]
     (if result
-      (let [{:keys [t p normal]} rec
-            target (plus p normal (random-in-unit-sphere))]
-        (times 0.5 (color (->Ray p (minus target p)) world)))
+      (let [{:keys [t p normal id]} rec
+            {:keys [result scattered attenuation]} (scatter (:attr (nth (:lis world) id)) r rec)]
+        (if (and (< depth 50) result)
+          (times attenuation (color scattered world (+ depth 1)))
+          (->Vec3 0 0 0)))
       (let [unit-direction (unit-vector (:direction r))
             t (* 0.5 (+ (y unit-direction) 1.0)) ]
         (plus (times (->Vec3 1.0 1.0 1.0) (- 1.0 t))
@@ -62,35 +62,46 @@
 (defn coordinates-to-rate [[j i] ny nx]
   [(/ j (float ny)) (/ i (float nx))])
 
-(defn make-color [ray world]
-  (color ray world))
+(defn make-color [ray world depth]
+  (color ray world depth))
 
 (defn make-str [[ir ig ib]]
   (str ir " " ig " " ib "\n"))
 
+(defn gamma-correction [v]
+  (apply-vec #(Math/sqrt %) v))
+
 (defn anti-aliasing [[j i] ny nx ns camera world]
   (->> (repeatedly ns #(coordinates-to-rate [(+ j (rand)) (+ i (rand))] ny nx))
-       (map (comp #(make-color % world) #(get-ray % camera)))
+       (map (comp #(make-color % world 0) #(get-ray % camera)))
        (reduce plus)
        (times (/ 1 (float ns)))
-       ;; (apply-vec #(Math/sqrt %)) ;; Gamma correction
-       ))
+       gamma-correction))
+
+(defn make-camera []
+  (->Camera (->Vec3 -2.0 -1.0 -1.0)
+            (->Vec3 4.0 0.0 0.0)
+            (->Vec3 0.0 2.0 0.0)
+            (->Vec3 0.0 0.0 0.0)))
+
+(defn make-world []
+  (let [sphere1 (->Sphere (->Vec3 0 0 -1)      0.5 (->Lambertian (->Vec3 0.8 0.3 0.3)))
+        sphere2 (->Sphere (->Vec3 0 -100.5 -1) 100 (->Lambertian (->Vec3 0.8 0.8 0.0)))
+        sphere3 (->Sphere (->Vec3 1 0 -1)      0.5 (->Metal (->Vec3 0.8 0.6 0.2)))
+        sphere4 (->Sphere (->Vec3 -1 0 -1)     0.5 (->Metal (->Vec3 0.8 0.8 0.8)))
+        lis     (list sphere1 sphere2 sphere3 sphere4)]
+    (->Hitable-list lis (count lis))))
 
 (defn body [nx ny ns]
-  (let [camera     (->Camera (->Vec3 -2.0 -1.0 -1.0)
-                             (->Vec3 4.0 0.0 0.0)
-                             (->Vec3 0.0 2.0 0.0)
-                             (->Vec3 0.0 0.0 0.0))
-        sphere1    (->Sphere (->Vec3 0 0 -1) 0.5)
-        sphere2    (->Sphere (->Vec3 0 -100.5 -1) 100)
-        world      (->Hitable-list (list sphere1 sphere2) 2)
+  (let [camera (make-camera)   
+        world  (make-world)
         allprocess #(-> %
                         (anti-aliasing ny nx ns camera world)
                         vals
                         int-color*
                         make-str)]
     (->> (make-coordinates nx ny)
-         (map allprocess)
+         (pmap allprocess)
          (apply str))))
 
 (defn -main [nx ny ns]  

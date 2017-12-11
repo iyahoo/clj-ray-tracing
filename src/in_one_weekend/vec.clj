@@ -17,9 +17,6 @@
   (g [this] (:e1 this))
   (b [this] (:e2 this)))
 
-;; For test
-(defonce v_test (->Vec3 1 2 3))
-
 (defmethod print-method Vec3 [x ^java.io.Writer w]
   (.write w (str (:e0 x) " " (:e1 x) " " (:e2 x))))
 
@@ -111,3 +108,11 @@
 
 (defmethod equals true [v1 v2]
   (reduce #(and %1 %2) (map #(close? 0.00001 %1 %2) (vals v1) (vals v2))))
+
+;; Util
+
+(defn random-in-unit-sphere []
+  (let [p (squared-length (times 2.0 (minus (->Vec3 (rand) (rand) (rand)) (->Vec3 1 1 1))))]
+    (if (>= p 1.0)
+      p
+      (recur))))
