@@ -3,7 +3,8 @@
             [in-one-weekend.vec :refer :all]
             [in-one-weekend.ray :refer :all]
             [in-one-weekend.hitable-list :refer :all]
-            [in-one-weekend.sphere :refer :all])
+            [in-one-weekend.sphere :refer :all]
+            [in-one-weekend.camera :refer :all])
   (:gen-class))
 
 (defn color [r world]
@@ -50,26 +51,25 @@
 (defn coordinates-to-rate [[j i] ny nx]
   [(/ j (float ny)) (/ i (float nx))])
 
-(defn make-ray [[v u] origin lower-left-corner horizontal vertical]
-  (->Ray origin (plus lower-left-corner (times u horizontal) (times v vertical))))
-
 (defn make-color [ray world]
   (color ray world))
 
 (defn make-str [[ir ig ib]]
   (str ir " " ig " " ib "\n"))
 
+
+
 (defn body [nx ny]
-  (let [lower-left-corner (->Vec3 -2.0 -1.0 -1.0)
-        horizontal (->Vec3 4.0 0.0 0.0)
-        vertical   (->Vec3 0.0 2.0 0.0)
-        origin     (->Vec3 0.0 0.0 0.0)
+  (let [camera     (->Camera (->Vec3 -2.0 -1.0 -1.0)
+                             (->Vec3 4.0 0.0 0.0)
+                             (->Vec3 0.0 2.0 0.0)
+                             (->Vec3 0.0 0.0 0.0))
         sphere1    (->Sphere (->Vec3 0 0 -1) 0.5)
         sphere2    (->Sphere (->Vec3 0 -100.5 -1) 100)
         world      (->Hitable-list (list sphere1 sphere2) 2)
         allprocess #(-> %
                         (coordinates-to-rate ny nx)
-                        (make-ray origin lower-left-corner horizontal vertical)
+                        (get-ray camera)
                         (make-color world)
                         vals
                         ((fn [fc] (map int-color fc)))
