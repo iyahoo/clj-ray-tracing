@@ -7,10 +7,18 @@
             [in-one-weekend.camera :refer :all])
   (:gen-class))
 
+(defn random-in-unit-sphere []
+  (let [p (squared-length (times 2.0 (minus (->Vec3 (rand) (rand) (rand)) (->Vec3 1 1 1))))]
+    (if (>= p 1.0)
+      p
+      (recur))))
+
 (defn color [r world]
-  (let [{:keys [result rec]} (hit world r 0.0 Float/MAX_VALUE)]
+  (let [{:keys [result rec]} (hit world r 0.001 Float/MAX_VALUE)]
     (if result
-      (times 0.5 (plus 1 (->Vec3 (x (:normal rec)) (y (:normal rec)) (z (:normal rec)))))
+      (let [{:keys [t p normal]} rec
+            target (plus p normal (random-in-unit-sphere))]
+        (times 0.5 (color (->Ray p (minus target p)) world)))
       (let [unit-direction (unit-vector (:direction r))
             t (* 0.5 (+ (y unit-direction) 1.0)) ]
         (plus (times (->Vec3 1.0 1.0 1.0) (- 1.0 t))
@@ -21,6 +29,9 @@
 
 (defn int-color [f-color]
   (int (* 255.99 f-color)))
+
+(defn int-color* [f-colors]
+  (map int-color f-colors))
 
 ;; (defn body [nx ny]
 ;;   (let [lower-left-corner (->Vec3 -2.0 -1.0 -1.0)
@@ -57,9 +68,15 @@
 (defn make-str [[ir ig ib]]
   (str ir " " ig " " ib "\n"))
 
+(defn anti-aliasing [[j i] ny nx ns camera world]
+  (->> (repeatedly ns #(coordinates-to-rate [(+ j (rand)) (+ i (rand))] ny nx))
+       (map (comp #(make-color % world) #(get-ray % camera)))
+       (reduce plus)
+       (times (/ 1 (float ns)))
+       ;; (apply-vec #(Math/sqrt %)) ;; Gamma correction
+       ))
 
-
-(defn body [nx ny]
+(defn body [nx ny ns]
   (let [camera     (->Camera (->Vec3 -2.0 -1.0 -1.0)
                              (->Vec3 4.0 0.0 0.0)
                              (->Vec3 0.0 2.0 0.0)
@@ -68,20 +85,16 @@
         sphere2    (->Sphere (->Vec3 0 -100.5 -1) 100)
         world      (->Hitable-list (list sphere1 sphere2) 2)
         allprocess #(-> %
-                        (coordinates-to-rate ny nx)
-                        (get-ray camera)
-                        (make-color world)
+                        (anti-aliasing ny nx ns camera world)
                         vals
-                        ((fn [fc] (map int-color fc)))
+                        int-color*
                         make-str)]
     (->> (make-coordinates nx ny)
          (map allprocess)
          (apply str))))
 
-(defn -main [& args]
-  (let [nx 200
-        ny 100]
-    (dorun
-     (with-open [fout (io/writer "out.pnm")]
-       (-> fout
-           (.write (str (header nx ny) (body nx ny))))))))
+(defn -main [nx ny ns]  
+  (dorun
+   (with-open [fout (io/writer "out.pnm")]
+     (-> fout
+         (.write (str (header nx ny) (body nx ny ns)))))))
