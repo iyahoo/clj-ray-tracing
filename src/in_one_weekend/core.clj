@@ -27,11 +27,8 @@
 (defn header [nx ny]
   (str "P3\n" nx " " ny "\n255\n"))
 
-(defn int-color [f-color]
-  (int (* 255.99 f-color)))
-
-(defn int-color* [f-colors]
-  (map int-color f-colors))
+(defn int-color [f-colors]
+  (map #(int (* 255.99 %)) f-colors))
 
 ;; (defn body [nx ny]
 ;;   (let [lower-left-corner (->Vec3 -2.0 -1.0 -1.0)
@@ -98,7 +95,7 @@
         allprocess #(-> %
                         (anti-aliasing ny nx ns camera world)
                         vals
-                        int-color*
+                        int-color
                         make-str)]
     (->> (make-coordinates nx ny)
          (pmap allprocess)
