@@ -29,8 +29,9 @@
 (defn hit-sphere [sphere r t-min t-max id]
   {:pre [(= (class sphere) Sphere)]}
   (let [{d :discriminant t1 :x1 t2 :x2}
-        (equation-of-ray (:origin r) (:direction r) (:center sphere) (:radius sphere))]
+        (equation-of-ray (:origin r) (:direction r) (:center sphere) (:radius sphere))
+        exist? (> d 0)]
     (cond
-      (and (> d 0) (in? t1 t-min t-max)) {:result true :rec (hit-result sphere r t1 id)}
-      (and (> d 0) (in? t2 t-min t-max)) {:result true :rec (hit-result sphere r t2 id)}
+      (and exist? (in? t1 t-min t-max)) {:result true :rec (hit-result sphere r t1 id)}
+      (and exist? (in? t2 t-min t-max)) {:result true :rec (hit-result sphere r t2 id)}
       :else {:result false})))
