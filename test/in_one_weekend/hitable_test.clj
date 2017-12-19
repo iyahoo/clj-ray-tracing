@@ -4,5 +4,5 @@
 
 (deftest hitable-methods
   (testing "hit-record"
-    (is (= (struct hit-record 1 2 3)
-           {:t 1 :p 2 :normal 3}))))
+    (is (= (struct hit-record 1 2 3 1)
+           {:t 1 :p 2 :normal 3 :id 1}))))
