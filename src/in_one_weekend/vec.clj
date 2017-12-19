@@ -39,14 +39,14 @@
 
 ;; Calc methods
 
-(defn plus
+(defn ^Vec3 plus
   ([v] v)
   ([v1 v2]
    (apply-vec + v1 v2))
   ([v1 v2 & more]
    (reduce plus (plus v1 v2) more)))
 
-(defn minus
+(defn ^Vec3 minus
   ([v]
    (apply-vec - v))
   ([v1 v2]
@@ -54,13 +54,13 @@
   ([v1 v2 & more]
    (reduce minus (minus v1 v2) more)))
 
-(defn times
+(defn ^Vec3 times
   ([v1 v2]
    (apply-vec * v1 v2))
   ([v1 v2 & more]
    (reduce times (times v1 v2) more)))
 
-(defn divs
+(defn ^Vec3 divs
   ([v1 v2]
    (apply-vec / v1 v2))
   ([v1 v2 & more]
@@ -68,7 +68,7 @@
 
 ;; Definition methods
 
-(defn make-unit-vector [v]
+(defn ^Vec3 make-unit-vector [v]
   (let [elems (vals v)
         k (/ 1.0 (Math/sqrt (reduce + (map * elems elems))))]
     (apply ->Vec3 (map #(* %1 k) elems))))
@@ -82,12 +82,12 @@
 (defn dot [v1 v2]
   (reduce + (map * (vals v1) (vals v2))))
 
-(defn cross [v1 v2]
+(defn ^Vec3 cross [v1 v2]
   (->Vec3    (- (* (:e1 v1) (:e2 v2)) (* (:e2 v1) (:e1 v2)))
           (- (- (* (:e0 v1) (:e2 v2)) (* (:e2 v1) (:e0 v2))))
              (- (* (:e0 v1) (:e1 v2)) (* (:e1 v1) (:e0 v2)))))
 
-(defn unit-vector [v]
+(defn ^Vec3 unit-vector [v]
   (divs v (vector-length v)))
 
 ;; Equality
