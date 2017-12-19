@@ -5,7 +5,9 @@
             [in-one-weekend.hitable-list :refer :all]
             [in-one-weekend.sphere :refer :all]
             [in-one-weekend.camera :refer :all]
-            [in-one-weekend.material :refer :all])
+            [in-one-weekend.material :refer :all]
+            [overtone.live :refer :all]
+            [overtone.inst.piano :refer [piano]])
   (:import [in_one_weekend.ray Ray]
            [in_one_weekend.hitable_list Hitable-list])
   (:gen-class))
@@ -52,7 +54,7 @@
 ;;                (str ir " " ig " " ib "\n"))))))
 
 (defn make-coordinates
-  "左上から右下への座標のリスト"
+  "左上から右下への座標のペアのリスト"
   [nx ny]
   (for [j (range (- ny 1) -1 -1) i (range 0 nx)] [j i]))
 
@@ -84,13 +86,13 @@
 (defn make-world []
   (let [sphere1 (->Sphere (->Vec3 0 0 -1)      0.5 (->Lambertian (->Vec3 0.8 0.3 0.3)))
         sphere2 (->Sphere (->Vec3 0 -100.5 -1) 100 (->Lambertian (->Vec3 0.8 0.8 0.0)))
-        sphere3 (->Sphere (->Vec3 1 0 -1)      0.5 (->Metal (->Vec3 0.8 0.6 0.2)))
-        sphere4 (->Sphere (->Vec3 -1 0 -1)     0.5 (->Metal (->Vec3 0.8 0.8 0.8)))
+        sphere3 (->Sphere (->Vec3 1 0 -1)      0.5 (->Metal (->Vec3 0.8 0.6 0.2) 0.3))
+        sphere4 (->Sphere (->Vec3 -1 0 -1)     0.5 (->Metal (->Vec3 0.8 0.8 0.8) 1.0))
         lis     (list sphere1 sphere2 sphere3 sphere4)]
     (->Hitable-list lis (count lis))))
 
 (defn body [nx ny ns]
-  (let [camera (make-camera)   
+  (let [camera (make-camera)
         world  (make-world)
         allprocess #(-> %
                         (anti-aliasing ny nx ns camera world)
@@ -101,8 +103,21 @@
          (pmap allprocess)
          (apply str))))
 
-(defn -main [nx ny ns]  
+(defn -main [nx ny ns]
   (dorun
    (with-open [fout (io/writer "out.pnm")]
      (-> fout
          (.write (str (header nx ny) (body nx ny ns)))))))
+
+;; For notify using sound
+
+(use 'overtone.live)
+(use 'overtone.inst.piano)
+
+(defn end-sound []
+  (do (piano)
+      true))
+
+(defn main []
+  (do (-main 400 200 100)
+      (end-sound)))
