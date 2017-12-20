@@ -1,28 +1,31 @@
 (ns in-one-weekend.core
   (:require [clojure.java.io :as io :refer [writer]]
-            [in-one-weekend.vec :refer :all]
-            [in-one-weekend.ray :refer :all]
+            [in-one-weekend.hitable :refer :all]
             [in-one-weekend.hitable-list :refer :all]
             [in-one-weekend.sphere :refer :all]
+            [in-one-weekend.vec :refer :all]
+            [in-one-weekend.ray :refer :all]
             [in-one-weekend.camera :refer :all]
             [in-one-weekend.material :refer :all]
-            [overtone.live :refer :all]
-            [overtone.inst.piano :refer [piano]])
+            ;; [overtone.live :refer :all]
+            ;; [overtone.inst.piano :refer [piano]]
+            )
   (:import [in_one_weekend.ray Ray]
-           [in_one_weekend.hitable_list Hitable-list])
+           [in_one_weekend.hitable_list HitableList]
+           [in_one_weekend.sphere Sphere])
   (:gen-class))
 
 (defn color [r world depth]
-  {:pre [(= (class r) Ray) (= (class world) Hitable-list)]}
-  (let [{:keys [result rec]} (hit world r 0.001 Float/MAX_VALUE)]
+  {:pre [(= (class r) Ray) (= (class world) HitableList)]}
+  (let [{:keys [result rec]} (hit world r 0.001 Float/MAX_VALUE 0)]
     (if result
       (let [{:keys [t p normal id]} rec
-            {:keys [result scattered attenuation]} (scatter (:attr (nth (:lis world) id)) r rec)]
+            {:keys [result scattered attenuation]} (scatter (get-in world [:lis id :attr]) r rec)]
         (if (and (< depth 50) result)
           (times attenuation (color scattered world (+ depth 1)))
           (->Vec3 0 0 0)))
       (let [unit-direction (unit-vector (:direction r))
-            t (* 0.5 (+ (y unit-direction) 1.0)) ]
+            t (* 0.5 (+ (y unit-direction) 1.0))]
         (plus (times (->Vec3 1.0 1.0 1.0) (- 1.0 t))
               (times (->Vec3 0.5 0.7 1.0) t))))))
 
@@ -86,10 +89,10 @@
 (defn make-world []
   (let [sphere1 (->Sphere (->Vec3 0 0 -1)      0.5 (->Lambertian (->Vec3 0.8 0.3 0.3)))
         sphere2 (->Sphere (->Vec3 0 -100.5 -1) 100 (->Lambertian (->Vec3 0.8 0.8 0.0)))
-        sphere3 (->Sphere (->Vec3 1 0 -1)      0.5 (->Metal (->Vec3 0.8 0.6 0.2) 0.3))
-        sphere4 (->Sphere (->Vec3 -1 0 -1)     0.5 (->Metal (->Vec3 0.8 0.8 0.8) 1.0))
-        lis     (list sphere1 sphere2 sphere3 sphere4)]
-    (->Hitable-list lis (count lis))))
+        sphere3 (->Sphere (->Vec3 1 0 -1)      0.5 (->Metal (->Vec3 0.8 0.6 0.2) 1.0))
+        sphere4 (->Sphere (->Vec3 -1 0 -1)     0.5 (->Metal (->Vec3 0.8 0.8 0.8) 0.3))
+        lis     (vector sphere1 sphere2 sphere3 sphere4)]
+    (->HitableList lis (count lis))))
 
 (defn body [nx ny ns]
   (let [camera (make-camera)
@@ -111,13 +114,13 @@
 
 ;; For notify using sound
 
-(use 'overtone.live)
-(use 'overtone.inst.piano)
+;; (use 'overtone.live)
+;; (use 'overtone.inst.piano)
 
-(defn end-sound []
-  (do (piano)
-      true))
+;; (defn end-sound []
+;;   (do (piano)
+;;       true))
 
-(defn main []
-  (do (-main 400 200 100)
-      (end-sound)))
+;; (defn main []
+;;   (do (-main 400 200 100)
+;;       (end-sound)))

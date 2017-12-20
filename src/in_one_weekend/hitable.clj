@@ -1,3 +1,6 @@
 (ns in-one-weekend.hitable)
 
-(defstruct hit-record :t :p :normal :id)
+(defrecord HitRecord [t p normal id])
+
+(defprotocol Hitable
+  (hit [this ray t-min t-max id]))
