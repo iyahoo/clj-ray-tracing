@@ -4,5 +4,5 @@
 
 (deftest hitable-methods
   (testing "HitRecord"
-    (is (= (->HitRecord 1 2 3 1)
-           {:t 1 :p 2 :normal 3 :id 1}))))
+    (is (.equals (->HitRecord 1 2 3 1)
+                 {:t 1 :p 2 :normal 3 :id 1}))))
