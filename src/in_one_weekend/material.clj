@@ -15,14 +15,11 @@
 (defn reflect [v n]
   (minus v (times 2.0 (times (dot v n) n))))
 
-(defrecord Metal [albedo fuzz]
+(defrecord Metal [albedo]
   Material
   (scatter [met ray rec]
     (let [{:keys [p normal]} rec
           reflected (reflect (unit-vector (:direction ray)) normal)
-          scattered (->Ray p (plus reflected (times (random-in-unit-sphere) fuzz)))]
+          scattered (->Ray p reflected)]
       {:result (> (dot (:direction scattered) normal) 0)
        :attenuation (:albedo met) :scattered scattered})))
-
-(defn metal [albedo fuzz]
-  (->Metal albedo (if (< fuzz 1) fuzz 1)))
