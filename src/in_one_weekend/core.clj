@@ -6,10 +6,7 @@
             [in-one-weekend.vec :refer :all]
             [in-one-weekend.ray :refer :all]
             [in-one-weekend.camera :refer :all]
-            [in-one-weekend.material :refer :all]
-            ;; [overtone.live :refer :all]
-            ;; [overtone.inst.piano :refer [piano]]
-            )
+            [in-one-weekend.material :refer :all])
   (:import [in_one_weekend.ray Ray]
            [in_one_weekend.hitable_list HitableList]
            [in_one_weekend.sphere Sphere])
@@ -34,27 +31,6 @@
 
 (defn int-color [f-colors]
   (map #(int (* 255.99 %)) f-colors))
-
-;; (defn body [nx ny]
-;;   (let [lower-left-corner (->Vec3 -2.0 -1.0 -1.0)
-;;         horizontal (->Vec3 4.0 0.0 0.0)
-;;         vertical   (->Vec3 0.0 2.0 0.0)
-;;         origin     (->Vec3 0.0 0.0 0.0)
-;;         sphere1    (->Sphere (->Vec3 0 0 -1) 0.5)
-;;         sphere2    (->Sphere (->Vec3 0 -100.5 -1) 100)
-;;         world      (->Hitable-list (list sphere1 sphere2) 2)]
-;;     (apply str
-;;            (for [j (range (- ny 1) -1 -1)
-;;                  i (range 0 nx)]
-;;              (let [u (/ i (float nx))
-;;                    v (/ j (float ny))
-;;                    r (->Ray origin
-;;                              (plus lower-left-corner (times u horizontal) (times v vertical)))
-;;                    p (point-at-parameter r 2.0)
-;;                    col (color r world)
-;;                    vs (vals col)
-;;                    [ir ig ib] (map int-color vs)]
-;;                (str ir " " ig " " ib "\n"))))))
 
 (defn make-coordinates
   "左上から右下への座標のペアのリスト"
@@ -111,16 +87,3 @@
    (with-open [fout (io/writer "out.pnm")]
      (-> fout
          (.write (str (header nx ny) (body nx ny ns)))))))
-
-;; For notify using sound
-
-;; (use 'overtone.live)
-;; (use 'overtone.inst.piano)
-
-;; (defn end-sound []
-;;   (do (piano)
-;;       true))
-
-;; (defn main []
-;;   (do (-main 400 200 100)
-;;       (end-sound)))
