@@ -32,7 +32,7 @@
   (apply ->Vec3 (map #(f % v2) (vals v1))))
 
 (defn ^Vec3 apply-vec
-  ([f v]
+  ([f ^Vec3 v]
    (apply ->Vec3 (map f (vals v))))
   ([f v1 v2]
    (%apply-vec f v1 v2)))
