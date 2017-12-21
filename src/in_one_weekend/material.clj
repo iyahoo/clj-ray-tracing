@@ -38,19 +38,6 @@
       {:refracted (minus (times ni-over-nt (minus uv (times n dt)))
                          (times n (Math/sqrt d)))})))
 
-;; (defn reflect [v n ni-over-nt]
-;;   (let [discriminant  (fn [dt]
-;;                         (- 1.0 (* ni-over-nt ni-over-nt (- 1 (* dt dt)))))
-;;         reflected-vec (fn [d]
-;;                         (minus (times ni-over-nt (minus u))))])
-;;   (some-> (unit-vector v)
-;;           (dot v)
-;;           discriminant
-;;           (as-> d
-;;               (if (> d 0)
-;;                 d))
-;;           ()))
-
 (defrecord Dielectric [ref-idx]
   Material
   (scatter [diele ray rec]
