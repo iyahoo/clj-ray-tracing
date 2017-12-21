@@ -23,11 +23,3 @@
           (recur (+ i 1) temp-rec hit-anything closest-so-far)))
       (when hit-anything
         temp-rec))))
-
-;; (defn hit [hitlis ray t-min t-max]
-;;   {:pre [(= (class hitlis) Hitable-list)]}
-;;   (->> (range (:list-size hitlis))
-;;        (map #(hit-sphere (nth (:lis hitlis) %) ray t-min t-max %))
-;;        (filter :rec)
-;;        (sort-by :t)
-;;        (first)))
