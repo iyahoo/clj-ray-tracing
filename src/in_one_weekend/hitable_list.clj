@@ -11,7 +11,6 @@
     (hit-hitablelist hitlis ray t-min t-max id)))
 
 (defn hit-hitablelist [hitlis ray t-min t-max id]
-  {:pre [(= (class hitlis) HitableList)]}
   (loop [i 0
          temp-rec nil
          hit-anything false
