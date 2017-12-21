@@ -64,8 +64,9 @@
 (defn make-world []
   (let [sphere1 (->Sphere (->Vec3 0 0 -1)      0.5 (->Lambertian (->Vec3 0.8 0.3 0.3)))
         sphere2 (->Sphere (->Vec3 0 -100.5 -1) 100 (->Lambertian (->Vec3 0.8 0.8 0.0)))
-        sphere3 (->Sphere (->Vec3 1 0 -1)      0.5 (->Metal (->Vec3 0.8 0.6 0.2)))
-        sphere4 (->Sphere (->Vec3 -1 0 -1)     0.5 (->Metal (->Vec3 0.8 0.8 0.8)))
+        sphere3 (->Sphere (->Vec3 1 0 -1)      0.5 (->Metal (->Vec3 0.8 0.6 0.2) 0.0))
+        sphere4 (->Sphere (->Vec3 -1 0 -1)     0.5 (->Dielectric 1.5))
+        ;; sphere4 (->Sphere (->Vec3 -1 0 -1)     0.5 (->Metal (->Vec3 0.8 0.8 0.8) 0.0))
         lis     (vector sphere1 sphere2 sphere3 sphere4)]
     (->HitableList lis (count lis))))
 
