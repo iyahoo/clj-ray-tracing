@@ -24,7 +24,6 @@
 (defrecord Sphere [center radius attr]
   Hitable
   (hit [sphere r t-min t-max id]
-    {:pre [(= (class sphere) Sphere)]}
     (let [{d :discriminant t1 :x1 t2 :x2}
           (equation-of-ray (:origin r) (:direction r) (:center sphere) (:radius sphere))
           exist? (> d 0)]
@@ -34,7 +33,6 @@
         :eles false))))
 
 (defn hit-result [sphere r t id]
-  {:pre [(= (class sphere) Sphere)]}
   (let [p (point-at-parameter r t)
         normal (divs (minus p (:center sphere)) (:radius sphere))]
     (->HitRecord t p normal id)))
