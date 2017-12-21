@@ -29,9 +29,9 @@
           (equation-of-ray (:origin r) (:direction r) (:center sphere) (:radius sphere))
           exist? (> d 0)]
       (cond
-        (and exist? (in? t1 t-min t-max)) {:result true :rec (hit-result sphere r t1 id)}
-        (and exist? (in? t2 t-min t-max)) {:result true :rec (hit-result sphere r t2 id)}
-        :else {:result false}))))
+        (and exist? (in? t1 t-min t-max)) (hit-result sphere r t1 id)
+        (and exist? (in? t2 t-min t-max)) (hit-result sphere r t2 id)
+        :eles false))))
 
 (defn hit-result [sphere r t id]
   {:pre [(= (class sphere) Sphere)]}

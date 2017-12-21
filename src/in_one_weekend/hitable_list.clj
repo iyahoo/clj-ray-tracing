@@ -3,21 +3,26 @@
             [in-one-weekend.hitable :refer :all]
             [in-one-weekend.sphere :refer :all]))
 
+(declare hit-hitablelist)
+
 (defrecord HitableList [lis list-size]
   Hitable
   (hit [hitlis ray t-min t-max id]
-    {:pre [(= (class hitlis) HitableList)]}
-    (loop [i 0
-           temp-rec nil
-           hit-anything false
-           closest-so-far t-max]
-      (if (< i (:list-size hitlis))
-        (let [list-i (get-in hitlis [:lis i])
-              {:keys [result rec]} (hit list-i ray t-min closest-so-far i)]
-          (if result
-            (recur (+ i 1) rec      true         (:t rec))
-            (recur (+ i 1) temp-rec hit-anything closest-so-far)))
-        {:result hit-anything :rec temp-rec}))))
+    (hit-hitablelist hitlis ray t-min t-max id)))
+
+(defn hit-hitablelist [hitlis ray t-min t-max id]
+  {:pre [(= (class hitlis) HitableList)]}
+  (loop [i 0
+         temp-rec nil
+         hit-anything false
+         closest-so-far t-max]
+    (if (< i (:list-size hitlis))
+      (let [list-i (get-in hitlis [:lis i])]
+        (if-let [rec (hit list-i ray t-min closest-so-far i)]
+          (recur (+ i 1) rec      true         (:t rec))
+          (recur (+ i 1) temp-rec hit-anything closest-so-far)))
+      (when hit-anything
+        temp-rec))))
 
 ;; (defn hit [hitlis ray t-min t-max]
 ;;   {:pre [(= (class hitlis) Hitable-list)]}
