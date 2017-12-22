@@ -117,5 +117,5 @@
 (defn random-in-unit-sphere []
   (let [p (minus (times 2.0 (->Vec3 (rand) (rand) (rand))) (->Vec3 1 1 1))]
     (if (>= (squared-length p) 1.0)
-      p
-      (recur))))
+      (recur)
+      p)))
