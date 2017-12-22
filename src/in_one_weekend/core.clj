@@ -13,13 +13,16 @@
   (:gen-class))
 
 (defn color [r world depth]
-  ;; {:pre [(= (class r) Ray) (= (class world) HitableList)]}
-  (if-let [{:keys [id] :as rec} (hit world r 0.001 Float/MAX_VALUE 0)]
-    (if-let [{:keys [scattered attenuation]} (scatter (get-in world [:lis id :attr]) r rec)]
+  {:pre [(= (class r) Ray) (= (class world) HitableList)]}
+  (if-let [{:keys [id] :as rec}
+           (hit world r 0.001 Float/MAX_VALUE 0)]
+    (if-let [{:keys [scattered attenuation]}
+             (scatter (get-in world [:lis id :attr]) r rec)]
       (if (< depth 50)
         (times attenuation (color scattered world (+ depth 1)))
         (->Vec3 0 0 0))
       (->Vec3 0 0 0))
+    ;; When ray don't hit sphere
     (let [unit-direction (unit-vector (:direction r))
           t (* 0.5 (+ (y unit-direction) 1.0))]
       (plus (times (->Vec3 1.0 1.0 1.0) (- 1.0 t))
@@ -62,11 +65,11 @@
             (->Vec3 0.0 0.0 0.0)))
 
 (defn make-world []
-  (let [sphere1 (->Sphere (->Vec3 0 0 -1)      0.5 (->Lambertian (->Vec3 0.8 0.3 0.3)))
-        sphere2 (->Sphere (->Vec3 0 -100.5 -1) 100 (->Lambertian (->Vec3 0.8 0.8 0.0)))
-        sphere3 (->Sphere (->Vec3 1 0 -1)      0.5 (->Metal (->Vec3 0.8 0.6 0.2) 0.0))
-        sphere4 (->Sphere (->Vec3 -1 0 -1)     0.5 (->Dielectric 1.5))
-        ;; sphere4 (->Sphere (->Vec3 -1 0 -1)     0.5 (->Metal (->Vec3 0.8 0.8 0.8) 0.0))
+  (let [sphere1 (->Sphere (->Vec3 0  0 -1)     0.5  (->Lambertian (->Vec3 0.1 0.2 0.5)))
+        sphere2 (->Sphere (->Vec3 0 -100.5 -1) 100  (->Lambertian (->Vec3 0.8 0.8 0.0)))
+        sphere3 (->Sphere (->Vec3 1  0 -1)     0.5  (->Metal (->Vec3 0.8 0.6 0.2) 0.0))
+        sphere4 (->Sphere (->Vec3 -1 0 -1)     0.5  (->Dielectric 1.5))
+        ;; sphere5 (->Sphere (->Vec3 -1 0 -1)    -0.45 (->Dielectric 1.5))
         lis     (vector sphere1 sphere2 sphere3 sphere4)]
     (->HitableList lis (count lis))))
 

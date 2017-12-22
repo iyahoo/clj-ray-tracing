@@ -31,6 +31,9 @@
 (defmethod ^Vec3 %apply-vec [Vec3 Number] [f v1 v2]
   (apply ->Vec3 (map #(f % v2) (vals v1))))
 
+(defmethod %apply-vec [Number Number] [f v1 v2]
+  (throw (Exception. "%apply-vec require at least one vector")))
+
 (defn ^Vec3 apply-vec
   ([f ^Vec3 v]
    (apply ->Vec3 (map f (vals v))))

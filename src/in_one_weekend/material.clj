@@ -11,6 +11,7 @@
   Material
   (scatter [lamb ray rec]
     (let [{:keys [p normal]} rec
+          ;; By `random-in-unit-shpere`
           target (plus p normal (random-in-unit-sphere))]
       {:attenuation (:albedo lamb) :scattered (->Ray p (minus target p))})))
 
@@ -33,20 +34,53 @@
   {:pre [(= (class v) Vec3)]}
   (let [uv (unit-vector v)
         dt (dot uv n)
-        d (- 1.0 (* ni-over-nt ni-over-nt (- 1 (* dt dt))))]
+        d (- 1.0 (* ni-over-nt ni-over-nt (- 1 (* dt dt))))
+        refracted (minus (times ni-over-nt (minus uv (times n dt)))
+                         (times n (Math/sqrt d)))]
     (if (> d 0)
-      {:refracted (minus (times ni-over-nt (minus uv (times n dt)))
-                         (times n (Math/sqrt d)))})))
+      {:result true  :refracted refracted}
+      {:result false :refracted refracted})))
 
+(defn pow2 [x]
+  (* x x))
+
+(defn schlick [cosine ref-idx]
+  "https://en.wikipedia.org/wiki/Schlick%27s_approximation."
+  {:pre [(float? cosine) (float? ref-idx)]}
+  (let [r0 (-> (/ (- 1 ref-idx) (+ 1 ref-idx)) ; The ref-idx of air is 1.
+               (pow2))]
+    (+ r0 (* (- 1 r0)
+             (Math/pow (- 1 cosine) 5)))))
+
+(defn cosine-val [acute-angle-p ref-idx normal direction]
+  (if acute-angle-p
+    (/ (* ref-idx (dot direction normal))
+       (vector-length direction))
+    (/ (- (dot direction normal))
+       (vector-length direction))))
+
+(defn acute-angle? [v1 v2]
+  (> (dot v1 v2) 0))
+
+(defn scatter-dielectric [ref-idx ray rec]
+  (let [{:keys [normal p]} rec
+        {:keys [direction]} ray
+        acute-angle-p (acute-angle? normal direction)]
+    (let [{:keys [result refracted]}
+          (if acute-angle-p
+            (refract direction (minus normal)        ref-idx)
+            (refract direction         normal (/ 1.0 ref-idx)))]
+      (if result
+        (let [cosine (cosine-val acute-angle-p ref-idx normal direction)
+              reflect-prob (schlick cosine ref-idx)]
+          (if (< (rand) reflect-prob)
+            {:attenuation (->Vec3 1.0 1.0 1.0) :scattered (->Ray p (reflect direction normal))}
+            {:attenuation (->Vec3 1.0 1.0 1.0) :scattered (->Ray p refracted)}))
+        {:attenuation (->Vec3 1.0 1.0 1.0) :scattered (->Ray p refracted)}))))
+
+;; `ref-idx` is the refractive index.
 (defrecord Dielectric [ref-idx]
   Material
   (scatter [diele ray rec]
     {:pre [(= (class ray) Ray)]}
-    (let [{:keys [normal p]} rec
-          inpro (dot (:direction ray) normal)]
-      (when-let [{:keys [refracted]}
-                 (refract (:direction ray)
-                          (if (> inpro 0) (minus normal) normal)
-                          (if (> inpro 0) ref-idx (/ 1.0 ref-idx)))]
-        {:attenuation (->Vec3 1.0 1.0 1.0)
-         :scattered (->Ray p refracted)}))))
+    (scatter-dielectric ref-idx ray rec)))

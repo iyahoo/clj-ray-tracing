@@ -18,7 +18,7 @@
      :x1 (if (< d 0) 0 (/ (- (- b) (Math/sqrt d)) a))
      :x2 (if (< d 0) 0 (/ (+ (- b) (Math/sqrt d)) a))}))
 
-(defn in? [x x-min x-max]
+(defn between? [x x-min x-max]
   (and (< x-min x) (< x x-max)))
 
 (defrecord Sphere [center radius attr]
@@ -26,14 +26,14 @@
   (hit [sphere r t-min t-max id]
     (let [{d :discriminant t1 :x1 t2 :x2}
           (equation-of-ray (:origin r) (:direction r) (:center sphere) (:radius sphere))
-          exist? (> d 0)]
+          hit? (> d 0)]
       (cond
-        (and exist? (in? t1 t-min t-max)) (hit-result sphere r t1 id)
-        (and exist? (in? t2 t-min t-max)) (hit-result sphere r t2 id)
+        (and hit? (between? t1 t-min t-max)) (hit-result sphere r t1 id)
+        (and hit? (between? t2 t-min t-max)) (hit-result sphere r t2 id)
         :eles false))))
 
 (defn hit-result [sphere r t id]
-  (let [p (point-at-parameter r t)
+  (let [p (point-at-parameter r t) ;; The point where ray hits
         normal (divs (minus p (:center sphere)) (:radius sphere))]
     (->HitRecord t p normal id)))
 

@@ -4,5 +4,5 @@
 
 (deftest sphere-methods
   (testing "in?"
-    (is (in? 3 2 5))
-    (is (not (in? 2 2 2)))))
+    (is (between? 3 2 5))
+    (is (not (between? 2 2 2)))))

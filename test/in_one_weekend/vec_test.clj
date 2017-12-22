@@ -10,17 +10,18 @@
     (is (not (equals v (->Vec3 1 2 2))))
     (is (equals (->Vec3 (/ 1 3)   (/ 2 3)  (/ 3 3))
                 (->Vec3 (/ 1 3.0) (/ 2 3.0) (/ 3 3.0)))))
-  
+
   (testing "apply-vec"
     (is (equals (apply-vec + v)
-                (->Vec3 1 2 3)))    
+                (->Vec3 1 2 3)))
     (is (equals (apply-vec + v v)
                 (->Vec3 2 4 6)))
     (is (equals (apply-vec - v)
                 (->Vec3 -1 -2 -3)))
     (is (equals (apply-vec - v v)
-                (->Vec3 0 0 0))))
-  
+                (->Vec3 0 0 0)))
+    (is (thrown? java.lang.Exception (%apply-vec + 1 1))))
+
   (testing "plus"
     (is (equals (plus v)   (->Vec3 1 2 3)))
     (is (equals (plus v v) (->Vec3 2 4 6)))
@@ -38,7 +39,7 @@
   (testing "divs"
     (is (equals (divs v v) (->Vec3 1 1 1))
         (equals (divs v 1) (->Vec3 1 2 3))))
-  
+
   (testing "make-unit-vector"
     (is (equals (make-unit-vector (->Vec3 -4 -8 0))
                 (->Vec3 (- (/ 1.0 (Math/sqrt 5)))
@@ -56,3 +57,7 @@
   (testing "unit-vector"
     (is (equals (unit-vector (->Vec3 3 4 0))
                 (->Vec3 (/ 3 5) (/ 4 5) 0)))))
+
+(deftest util-functions
+  (testing "random-in-unit-sphere"
+    (is (<= (squared-length (random-in-unit-sphere)) 1.0))))
