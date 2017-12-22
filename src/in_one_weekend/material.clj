@@ -5,26 +5,28 @@
            [in_one_weekend.ray Ray]))
 
 (defprotocol Material
-  (scatter [this ray rec]))
+  (scatter? [this ray rec]))
 
 (defrecord Lambertian [albedo]
   Material
-  (scatter [lamb ray rec]
+  (scatter? [lamb ray rec]
     (let [{:keys [p normal]} rec
-          ;; By `random-in-unit-shpere`
           target (plus p normal (random-in-unit-sphere))]
       {:attenuation (:albedo lamb) :scattered (->Ray p (minus target p))})))
+
+(defn acute-angle? [v1 v2]
+  (> (dot v1 v2) 0))
 
 (defn reflect [v n]
   (minus v (times 2.0 (times (dot v n) n))))
 
 (defrecord Metal [albedo fuzz]
   Material
-  (scatter [met ray rec]
+  (scatter? [met ray rec]
     (let [{:keys [p normal]} rec
           reflected (reflect (unit-vector (:direction ray)) normal)
           scattered (->Ray p (plus reflected (times (random-in-unit-sphere) fuzz)))]
-      (when (> (dot (:direction scattered) normal) 0)
+      (when (acute-angle? (:direction scattered) normal)
         {:attenuation (:albedo met) :scattered scattered}))))
 
 (defn metal [albedo fuzz]
@@ -59,9 +61,6 @@
     (/ (- (dot direction normal))
        (vector-length direction))))
 
-(defn acute-angle? [v1 v2]
-  (> (dot v1 v2) 0))
-
 (defn scatter-dielectric [ref-idx ray rec]
   (let [{:keys [normal p]} rec
         {:keys [direction]} ray
@@ -81,6 +80,6 @@
 ;; `ref-idx` is the refractive index.
 (defrecord Dielectric [ref-idx]
   Material
-  (scatter [diele ray rec]
+  (scatter? [diele ray rec]
     {:pre [(= (class ray) Ray)]}
     (scatter-dielectric ref-idx ray rec)))

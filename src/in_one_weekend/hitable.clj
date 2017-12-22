@@ -3,4 +3,4 @@
 (defrecord HitRecord [t p normal id])
 
 (defprotocol Hitable
-  (hit [this ray t-min t-max id]))
+  (hit? [this ray t-min t-max id]))

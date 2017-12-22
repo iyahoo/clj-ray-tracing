@@ -12,21 +12,24 @@
            [in_one_weekend.sphere Sphere])
   (:gen-class))
 
+(defn background-color [r]
+  (let [unit-direction (unit-vector (:direction r))
+        t (* 0.5 (+ (y unit-direction) 1.0))]
+    (plus (times (->Vec3 1.0 1.0 1.0) (- 1.0 t))
+          (times (->Vec3 0.5 0.7 1.0) t))))
+
 (defn color [r world depth]
   {:pre [(= (class r) Ray) (= (class world) HitableList)]}
   (if-let [{:keys [id] :as rec}
-           (hit world r 0.001 Float/MAX_VALUE 0)]
+           (hit? world r 0.001 Float/MAX_VALUE 0)]
     (if-let [{:keys [scattered attenuation]}
-             (scatter (get-in world [:lis id :attr]) r rec)]
+             (scatter? (get-in world [:lis id :attr]) r rec)]
       (if (< depth 50)
         (times attenuation (color scattered world (+ depth 1)))
         (->Vec3 0 0 0))
       (->Vec3 0 0 0))
-    ;; When ray don't hit sphere
-    (let [unit-direction (unit-vector (:direction r))
-          t (* 0.5 (+ (y unit-direction) 1.0))]
-      (plus (times (->Vec3 1.0 1.0 1.0) (- 1.0 t))
-            (times (->Vec3 0.5 0.7 1.0) t)))))
+    ;; When ray don't hit any sphere
+    (background-color r)))
 
 (defn header [nx ny]
   (str "P3\n" nx " " ny "\n255\n"))
@@ -35,7 +38,7 @@
   (map #(int (* 255.99 %)) f-colors))
 
 (defn make-coordinates
-  "左上から右下への座標のペアのリスト"
+  "The sequence of coordinates from left top to right down."
   [nx ny]
   (for [j (range (- ny 1) -1 -1) i (range 0 nx)] [j i]))
 

@@ -98,7 +98,7 @@
 (defn difference [x y]
   (Math/abs (double (- x y))))
 
-(defn close? [tolerance x y]
+(defn close? [x y tolerance]
   (< (difference x y) tolerance))
 
 (defn float-vec? [v]
@@ -110,7 +110,7 @@
   (.equals v1 v2))
 
 (defmethod equals true [v1 v2]
-  (reduce #(and %1 %2) (map #(close? 0.00001 %1 %2) (vals v1) (vals v2))))
+  (reduce #(and %1 %2) (map #(close? %1 %2 0.000001) (vals v1) (vals v2))))
 
 ;; Util
 

@@ -7,7 +7,7 @@
 
 (defrecord HitableList [lis list-size]
   Hitable
-  (hit [hitlis ray t-min t-max id]
+  (hit? [hitlis ray t-min t-max id]
     (hit-hitablelist hitlis ray t-min t-max id)))
 
 (defn hit-hitablelist [hitlis ray t-min t-max id]
@@ -17,7 +17,7 @@
          closest-so-far t-max]
     (if (< i (:list-size hitlis))
       (let [list-i (get-in hitlis [:lis i])]
-        (if-let [rec (hit list-i ray t-min closest-so-far i)]
+        (if-let [rec (hit? list-i ray t-min closest-so-far i)]
           (recur (+ i 1) rec      true         (:t rec))
           (recur (+ i 1) temp-rec hit-anything closest-so-far)))
       (when hit-anything

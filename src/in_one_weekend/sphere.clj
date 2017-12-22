@@ -23,7 +23,7 @@
 
 (defrecord Sphere [center radius attr]
   Hitable
-  (hit [sphere r t-min t-max id]
+  (hit? [sphere r t-min t-max id]
     (let [{d :discriminant t1 :x1 t2 :x2}
           (equation-of-ray (:origin r) (:direction r) (:center sphere) (:radius sphere))
           hit? (> d 0)]
