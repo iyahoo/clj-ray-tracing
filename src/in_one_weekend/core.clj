@@ -96,3 +96,10 @@
    (with-open [fout (io/writer "out.pnm")]
      (-> fout
          (.write (str (header nx ny) (body nx ny ns)))))))
+
+(defn debug-main [ns]
+  (dorun
+   (with-open [fout (io/writer "out.pnm")]
+     (-> fout
+         (.write (str (header 400 200) (body 400 200 ns)))))))
+
