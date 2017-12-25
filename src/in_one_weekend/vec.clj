@@ -110,8 +110,17 @@
 
 ;; Util
 
+(defn difference [x y]
+  (Math/abs (double (- x y))))
+
+(defn close? [x y tolerance]
+  (< (difference x y) tolerance))
+
 (defn random-in-unit-sphere []
   (let [p (minus (times 2.0 (->Vec3 (rand) (rand) (rand))) (->Vec3 1 1 1))]
     (if (>= (squared-length p) 1.0)
       (recur)
       p)))
+
+(defn angle->rad [angle]
+  (* angle (/ Math/PI 180)))
