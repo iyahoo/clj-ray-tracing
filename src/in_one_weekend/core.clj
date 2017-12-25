@@ -64,7 +64,9 @@
        (times (/ 1 (float ns)))
        gamma-correction))
 
-;; from slanting (->Camera (->Vec3 3 2 4) (->Vec3 0 0 -1) (->Vec3 0 1 0) 90.0 (/ (float nx) (float ny)))
+;; from slanting
+;; (defn make-camera [nx ny]
+;;   (->Camera (->Vec3 3 2 4) (->Vec3 0 0 -1) (->Vec3 0 1 0) 90.0 (/ (float nx) (float ny))))
 
 (defn make-camera [nx ny]
   (->Camera (->Vec3 7 1.5 2.5) (->Vec3 0 0 -1) (->Vec3 0 1 0) 45.0 (/ (float nx) (float ny))))
@@ -136,6 +138,7 @@
 
 (defn body [nx ny ns]
   (let [camera (make-camera nx ny)
+        ;; world (make-world)
         world  (make-random-world (->Vec3 4 0.2 0))
         allprocess #(-> %
                         (anti-aliasing ny nx ns camera world)
@@ -151,10 +154,4 @@
    (with-open [fout (io/writer "out.pnm")]
      (-> fout
          (.write (str (header nx ny) (body nx ny ns)))))))
-
-(defn debug-main [ns]
-  (dorun
-   (with-open [fout (io/writer "out.pnm")]
-     (-> fout
-         (.write (str (header 400 200) (body 400 200 ns)))))))
 
