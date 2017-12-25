@@ -26,10 +26,10 @@
   (hit? [sphere r t-min t-max id]
     (let [{d :discriminant t1 :x1 t2 :x2}
           (equation-of-ray (:origin r) (:direction r) (:center sphere) (:radius sphere))
-          hit? (> d 0)]
+          any-solution-p (> d 0)]
       (cond
-        (and hit? (between? t1 t-min t-max)) (hit-result sphere r t1 id)
-        (and hit? (between? t2 t-min t-max)) (hit-result sphere r t2 id)
+        (and any-solution-p (between? t1 t-min t-max)) (hit-result sphere r t1 id)
+        (and any-solution-p (between? t2 t-min t-max)) (hit-result sphere r t2 id)
         :eles false))))
 
 (defn hit-result [sphere r t id]

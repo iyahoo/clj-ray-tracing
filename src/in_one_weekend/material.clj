@@ -46,6 +46,13 @@
 (defn pow2 [x]
   (* x x))
 
+(defn cosine-val [acute-angle-p ref-idx normal direction]
+  (if acute-angle-p
+    (/ (* ref-idx (dot direction normal))
+       (vector-length direction))
+    (/ (- (dot direction normal))
+       (vector-length direction))))
+
 (defn schlick [cosine ref-idx]
   "https://en.wikipedia.org/wiki/Schlick%27s_approximation."
   {:pre [(float? cosine) (float? ref-idx)]}
@@ -53,13 +60,6 @@
                (pow2))]
     (+ r0 (* (- 1 r0)
              (Math/pow (- 1 cosine) 5)))))
-
-(defn cosine-val [acute-angle-p ref-idx normal direction]
-  (if acute-angle-p
-    (/ (* ref-idx (dot direction normal))
-       (vector-length direction))
-    (/ (- (dot direction normal))
-       (vector-length direction))))
 
 (defn scatter-dielectric [ref-idx ray rec]
   (let [{:keys [normal p]} rec
