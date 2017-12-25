@@ -68,14 +68,15 @@
     (let [{:keys [result refracted]}
           (if acute-angle-p
             (refract direction (minus normal)        ref-idx)
-            (refract direction         normal (/ 1.0 ref-idx)))]
+            (refract direction         normal (/ 1.0 ref-idx)))
+          reflected (reflect direction normal)]
       (if result
         (let [cosine (cosine-val acute-angle-p ref-idx normal direction)
               reflect-prob (schlick cosine ref-idx)]
           (if (< (rand) reflect-prob)
-            {:attenuation (->Vec3 1.0 1.0 1.0) :scattered (->Ray p (reflect direction normal))}
+            {:attenuation (->Vec3 1.0 1.0 1.0) :scattered (->Ray p reflected)}
             {:attenuation (->Vec3 1.0 1.0 1.0) :scattered (->Ray p refracted)}))
-        {:attenuation (->Vec3 1.0 1.0 1.0) :scattered (->Ray p refracted)}))))
+        {:attenuation (->Vec3 1.0 1.0 1.0) :scattered (->Ray p reflected)}))))
 
 ;; `ref-idx` is the refractive index.
 (defrecord Dielectric [ref-idx]
