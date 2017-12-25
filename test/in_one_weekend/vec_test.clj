@@ -60,4 +60,7 @@
 
 (deftest util-functions
   (testing "random-in-unit-sphere"
-    (is (<= (squared-length (random-in-unit-sphere)) 1.0))))
+    (is (<= (squared-length (random-in-unit-sphere)) 1.0)))
+
+  (testing "angle->rad"
+    (is (close? (angle->rad 180) Math/PI 0.000001))))
