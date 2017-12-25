@@ -64,11 +64,8 @@
        (times (/ 1 (float ns)))
        gamma-correction))
 
-(defn make-camera []
-  (->Camera (->Vec3 -2.0 -1.0 -1.0)
-            (->Vec3 4.0 0.0 0.0)
-            (->Vec3 0.0 2.0 0.0)
-            (->Vec3 0.0 0.0 0.0)))
+(defn make-camera [nx ny]
+  (->Camera (->Vec3 0 1 -0.5) (->Vec3 0 0 -1) (->Vec3 0 1 0) 90.0 (/ (float nx) (float ny))))
 
 (defn make-world []
   (let [sphere1 (->Sphere (->Vec3 0  0 -1)     0.5  (->Lambertian (->Vec3 0.1 0.2 0.5)))
@@ -76,11 +73,15 @@
         sphere3 (->Sphere (->Vec3 1  0 -1)     0.5  (->Metal (->Vec3 0.8 0.6 0.2) 0.0))
         sphere4 (->Sphere (->Vec3 -1 0 -1)     0.5  (->Dielectric 1.5))
         sphere5 (->Sphere (->Vec3 -1 0 -1)    -0.45 (->Dielectric 1.5))
+        ;; r (Math/cos (/ Math/PI 4.0))
+        ;; sphere1 (->Sphere (->Vec3 (- r) 0 -1) r (->Lambertian (->Vec3 0.0 0.0 1.0)))
+        ;; sphere2 (->Sphere (->Vec3    r  0 -1) r (->Lambertian (->Vec3 1.0 0.0 0.0)))
         lis     (vector sphere1 sphere2 sphere3 sphere4 sphere5)]
+        ;; lis     (vector sphere1 sphere2)]
     (->HitableList lis (count lis))))
 
 (defn body [nx ny ns]
-  (let [camera (make-camera)
+  (let [camera (make-camera nx ny)
         world  (make-world)
         allprocess #(-> %
                         (anti-aliasing ny nx ns camera world)
