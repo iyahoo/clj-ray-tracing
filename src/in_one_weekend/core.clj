@@ -64,8 +64,10 @@
        (times (/ 1 (float ns)))
        gamma-correction))
 
+;; from slanting (->Camera (->Vec3 3 2 4) (->Vec3 0 0 -1) (->Vec3 0 1 0) 90.0 (/ (float nx) (float ny)))
+
 (defn make-camera [nx ny]
-  (->Camera (->Vec3 0 1 -0.5) (->Vec3 0 0 -1) (->Vec3 0 1 0) 90.0 (/ (float nx) (float ny))))
+  (->Camera (->Vec3 7 1.5 2.5) (->Vec3 0 0 -1) (->Vec3 0 1 0) 45.0 (/ (float nx) (float ny))))
 
 (defn make-world []
   (let [sphere1 (->Sphere (->Vec3 0  0 -1)     0.5  (->Lambertian (->Vec3 0.1 0.2 0.5)))
@@ -80,9 +82,61 @@
         ;; lis     (vector sphere1 sphere2)]
     (->HitableList lis (count lis))))
 
+(defn random-coordinates []
+  (for [a (range -6 6) b (range -6 6)]
+    [a b]))
+
+(defn make-random-center [[a b]]
+  (->Vec3 (+ a (* 0.9 (rand)))
+          0.2
+          (+ b (* 0.9 (rand)))))
+
+(defn rand*rand []
+  (* (rand) (rand)))
+
+(defn make-lambertian [center]
+  (->Sphere center 0.2 (->Lambertian (->Vec3 (rand*rand) (rand*rand) (rand*rand)))))
+
+(defn random-fcolor []                  ; float color > 0.5
+  (* 0.5 (+ 1 (rand))))
+
+(defn random-fcolors []
+  {:e0 (random-fcolor) :e1 (random-fcolor) :e2 (random-fcolor)})
+
+(defn make-metal [center]
+  (->Sphere center 0.2 (->Metal (map->Vec3 (random-fcolors)) (* 0.5 (rand)))))
+
+(defn make-dielectric [center]
+  (->Sphere center 0.2 (->Dielectric 1.5)))
+
+(defn make-random-material [center]
+  (let [rv (rand)]
+    (cond
+      (< rv 0.8)  (make-lambertian center)
+      (< rv 0.95) (make-metal center)
+      :else (make-dielectric center))))
+
+(defn close-standard-center? [center standard-center]
+  (> (vector-length (minus center standard-center)) 0.9))
+
+(defn add-main-spheres [sequ]
+  (concat sequ (list (->Sphere (->Vec3 0 1 0)  1.0 (->Dielectric 1.5))
+                     (->Sphere (->Vec3 -4 1 0) 1.0 (->Lambertian (->Vec3 0.4 0.2 0.1)))
+                     (->Sphere (->Vec3 4 1 0)  1.0 (->Metal (->Vec3 0.7 0.6 0.5) 0.0))
+                     (->Sphere (->Vec3 0 -1000 0) 1000 (->Lambertian (->Vec3 0.5 0.5 0.5))))))
+
+(defn make-random-world [standard-center]
+  (->> (random-coordinates)
+       (map make-random-center)
+       (filter #(close-standard-center? % standard-center))
+       (map make-random-material)
+       (add-main-spheres)
+       (vec)
+       (#(->HitableList % (count %)))))
+
 (defn body [nx ny ns]
   (let [camera (make-camera nx ny)
-        world  (make-world)
+        world  (make-random-world (->Vec3 4 0.2 0))
         allprocess #(-> %
                         (anti-aliasing ny nx ns camera world)
                         vals
