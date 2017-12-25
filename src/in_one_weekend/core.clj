@@ -77,11 +77,7 @@
         sphere3 (->Sphere (->Vec3 1  0 -1)     0.5  (->Metal (->Vec3 0.8 0.6 0.2) 0.0))
         sphere4 (->Sphere (->Vec3 -1 0 -1)     0.5  (->Dielectric 1.5))
         sphere5 (->Sphere (->Vec3 -1 0 -1)    -0.45 (->Dielectric 1.5))
-        ;; r (Math/cos (/ Math/PI 4.0))
-        ;; sphere1 (->Sphere (->Vec3 (- r) 0 -1) r (->Lambertian (->Vec3 0.0 0.0 1.0)))
-        ;; sphere2 (->Sphere (->Vec3    r  0 -1) r (->Lambertian (->Vec3 1.0 0.0 0.0)))
         lis     (vector sphere1 sphere2 sphere3 sphere4 sphere5)]
-        ;; lis     (vector sphere1 sphere2)]
     (->HitableList lis (count lis))))
 
 (defn random-coordinates []
