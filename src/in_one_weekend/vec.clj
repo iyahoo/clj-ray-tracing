@@ -86,20 +86,16 @@
   (reduce + (map * (vals v1) (vals v2))))
 
 (defn ^Vec3 cross [v1 v2]
-  (->Vec3    (- (* (:e1 v1) (:e2 v2)) (* (:e2 v1) (:e1 v2)))
-          (- (- (* (:e0 v1) (:e2 v2)) (* (:e2 v1) (:e0 v2))))
-             (- (* (:e0 v1) (:e1 v2)) (* (:e1 v1) (:e0 v2)))))
+  (->Vec3 (- (* (y v1) (z v2)) (* (z v1) (y v2)))
+          (- (* (z v1) (x v2)) (* (x v1) (z v2)))
+          (- (* (x v1) (y v2)) (* (y v1) (x v2)))))
 
 (defn ^Vec3 unit-vector [v]
   (divs v (vector-length v)))
 
 ;; Equality
 
-(defn difference [x y]
-  (Math/abs (double (- x y))))
-
-(defn close? [x y tolerance]
-  (< (difference x y) tolerance))
+(declare close? difference)
 
 (defn float-vec? [v]
   (reduce #(or %1 %2) (map float? (vals v))))
