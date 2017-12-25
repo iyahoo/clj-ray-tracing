@@ -11,3 +11,4 @@ pom.xml.asc
 .hg/
 *.pnm
 *.html
+.DS_Store
