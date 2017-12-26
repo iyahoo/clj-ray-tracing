@@ -5,6 +5,15 @@
 
 (defrecord Camera [lookfrom lookat vup vfov aspect])
 
+(defn orthonormal-basis [a b c]
+  (let [w (unit-vector (minus a b))
+        u (unit-vector (cross b w))
+        v (cross w u)]
+    [w u v]))
+
+(defn camera-ob [lookfrom lookat vup]
+  (orthonormal-basis lookfrom lookat vup))
+
 (defn camera-view [{:keys [lookfrom lookat vup vfov aspect]}]
   {:pre [(= (class lookfrom) Vec3)
          (= (class lookat) Vec3)
@@ -12,9 +21,7 @@
   (let [theta (angle->rad vfov)
         half-height (Math/tan (/ theta 2.0))
         half-width (* aspect half-height)
-        w (unit-vector (minus lookfrom lookat))
-        u (unit-vector (cross vup w))
-        v (cross w u)]
+        [w u v] (camera-ob lookfrom lookat vup)]
     {:lower-left-corner (minus lookfrom (times half-width u) (times half-height v) w)
      :horizontal (times (* 2.0 half-width) u)
      :vertical (times (* 2.0 half-height) v)
