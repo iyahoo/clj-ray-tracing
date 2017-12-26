@@ -7,7 +7,7 @@
 
 (defn orthonormal-basis [a b c]
   (let [w (unit-vector (minus a b))
-        u (unit-vector (cross b w))
+        u (unit-vector (cross c w))
         v (cross w u)]
     [w u v]))
 
