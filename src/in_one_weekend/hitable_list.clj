@@ -9,7 +9,7 @@
          hit-anything false
          closest-so-far t-max]
     (if (< i list-size)
-      (if-let [rec (hit? (lis i) ray t-min closest-so-far i)]
+      (if-let [rec (hit? (nth lis i) ray t-min closest-so-far i)]
         (recur (+ i 1) rec      true         (:t rec))
         (recur (+ i 1) temp-rec hit-anything closest-so-far))
       (when hit-anything
