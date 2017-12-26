@@ -12,7 +12,7 @@
            [in_one_weekend.sphere Sphere])
   (:gen-class))
 
-(defn air-color [r color-val]
+(defn air-color [r]
   (let [unit-direction (unit-vector (:direction r))
         t (* 0.5 (+ (y unit-direction) 1.0))]
     (plus (times (->Vec3 1.0 1.0 1.0) (- 1.0 t))
@@ -32,7 +32,7 @@
          (->Vec3 0 0 0))
        (->Vec3 0 0 0))
      ;; When ray don't hit any sphere
-     (times color-val (air-color r color-val)))))
+     (times color-val (air-color r)))))
 
 (defn header [nx ny]
   (str "P3\n" nx " " ny "\n255\n"))
