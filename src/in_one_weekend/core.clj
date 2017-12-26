@@ -18,6 +18,9 @@
     (plus (times (->Vec3 1.0 1.0 1.0) (- 1.0 t))
           (times (->Vec3 0.5 0.7 1.0) t))))
 
+(defn hit-sphere-attribute [{:keys [lis]} id]
+  (:attr (nth lis id)))
+
 (defn color
   ([r world depth]
    {:pre [(= (class r) Ray) (= (class world) HitableList)]}
@@ -26,7 +29,7 @@
    (if-let [{:keys [id] :as rec}
             (hit? world r 0.001 Float/MAX_VALUE 0)]
      (if-let [{:keys [scattered attenuation]}
-              (scatter? (get-in world [:lis id :attr]) r rec)]
+              (scatter? (hit-sphere-attribute world id) r rec)]
        (if (< depth 50)
          (recur scattered world (+ depth 1) (times color-val attenuation))
          (->Vec3 0 0 0))
@@ -129,7 +132,6 @@
        (filter #(close-standard-center? % standard-center))
        (map make-random-material)
        (add-main-spheres)
-       (vec)
        (#(->HitableList % (count %)))))
 
 (defn body [nx ny ns]
