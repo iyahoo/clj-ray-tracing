@@ -27,7 +27,13 @@
      :vertical (times (* 2.0 half-height) v)
      :origin lookfrom}))
 
-(defn get-ray [[v u] camera]
+(defn correspond-point [[v u] camera-range]
+  (let [{:keys [lower-left-corner horizontal vertical origin]} camera-range]
+    (plus lower-left-corner (times u horizontal) (times v vertical))))
+
+(defn get-ray [coordinate {:keys [lookfrom] :as camera}]
   {:pre [(= (class camera) Camera)]}
-  (let [{:keys [lower-left-corner horizontal vertical origin]} (camera-view camera)]
-    (->Ray origin (minus (plus lower-left-corner (times u horizontal) (times v vertical)) origin))))
+  (->> (camera-view camera)
+       (correspond-point coordinate)
+       (plus (minus lookfrom))
+       (->Ray lookfrom)))
