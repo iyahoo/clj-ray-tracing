@@ -32,7 +32,9 @@
     (is (equals (minus v)   (->Vec3 -1 -2 -3)))
     (is (equals (minus v v) (->Vec3 0 0 0)))
     (is (equals (minus v 1) (->Vec3 0 1 2)))
-    (is (equals (minus 1 v) (->Vec3 0 -1 -2))))
+    (is (equals (minus 1 v) (->Vec3 0 -1 -2)))
+    (is (equals (minus v 1)
+                (plus (- 1) v))))
   (testing "times"
     (is (equals (times v v) (->Vec3 1 4 9)))
     (is (equals (times v 1) (->Vec3 1 2 3))))
