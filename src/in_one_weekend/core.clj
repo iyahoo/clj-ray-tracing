@@ -95,7 +95,7 @@
 (defn rand*rand []
   (* (rand) (rand)))
 
-(defn make-lambertian [center]
+(defn make-random-lambertian [center]
   (->Sphere center 0.2 (->Lambertian (->Vec3 (rand*rand) (rand*rand) (rand*rand)))))
 
 (defn random-fcolor []                  ; float color > 0.5
@@ -104,18 +104,18 @@
 (defn random-fcolors []
   {:e0 (random-fcolor) :e1 (random-fcolor) :e2 (random-fcolor)})
 
-(defn make-metal [center]
+(defn make-random-metal [center]
   (->Sphere center 0.2 (->Metal (map->Vec3 (random-fcolors)) (* 0.5 (rand)))))
 
-(defn make-dielectric [center]
+(defn make-random-dielectric [center]
   (->Sphere center 0.2 (->Dielectric 1.5)))
 
 (defn make-random-material [center]
   (let [rv (rand)]
     (cond
-      (< rv 0.8)  (make-lambertian center)
-      (< rv 0.95) (make-metal center)
-      :else (make-dielectric center))))
+      (< rv 0.8)  (make-random-lambertian center)
+      (< rv 0.95) (make-random-metal center)
+      :else (make-random-dielectric center))))
 
 (defn close-standard-center? [center standard-center]
   (> (vector-length (minus center standard-center)) 0.9))
