@@ -61,22 +61,31 @@
     (+ r0 (* (- 1 r0)
              (Math/pow (- 1 cosine) 5)))))
 
+(defn reflect? [acute-angle-p ref-idx normal direction]
+  (let [cosine (cosine-val acute-angle-p ref-idx normal direction)
+        reflect-prob (schlick cosine ref-idx)]
+    (< (rand) reflect-prob)))
+
 (defn scatter-dielectric [ref-idx ray rec]
   (let [{:keys [normal p]} rec
         {:keys [direction]} ray
-        acute-angle-p (acute-angle? normal direction)]
-    (let [{:keys [result refracted]}
-          (if acute-angle-p
-            (refract direction (minus normal)        ref-idx)
-            (refract direction         normal (/ 1.0 ref-idx)))
-          reflected (reflect direction normal)]
-      (if result
-        (let [cosine (cosine-val acute-angle-p ref-idx normal direction)
-              reflect-prob (schlick cosine ref-idx)]
-          (if (< (rand) reflect-prob)
-            {:attenuation (->Vec3 1.0 1.0 1.0) :scattered (->Ray p reflected)}
-            {:attenuation (->Vec3 1.0 1.0 1.0) :scattered (->Ray p refracted)}))
-        {:attenuation (->Vec3 1.0 1.0 1.0) :scattered (->Ray p reflected)}))))
+        acute-angle-p (acute-angle? normal direction)
+
+        {:keys [result refracted]}
+        (if acute-angle-p
+          (refract direction (minus normal)        ref-idx)
+          (refract direction         normal (/ 1.0 ref-idx)))
+
+        reflected (reflect direction normal)]
+    (cond
+      (not result)
+      {:attenuation (->Vec3 1.0 1.0 1.0) :scattered (->Ray p (reflect direction normal))}
+
+      (reflect? acute-angle-p ref-idx normal direction)
+      {:attenuation (->Vec3 1.0 1.0 1.0) :scattered (->Ray p (reflect direction normal))}
+
+      :else
+      {:attenuation (->Vec3 1.0 1.0 1.0) :scattered (->Ray p refracted)})))
 
 ;; `ref-idx` is the refractive index.
 (defrecord Dielectric [ref-idx]
