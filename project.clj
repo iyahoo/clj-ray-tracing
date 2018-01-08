@@ -4,8 +4,9 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.9.0"]
-                 [overtone "0.10.3"]]
+                 [com.taoensso/timbre "4.10.0"]]
   :main ^:skip-aot in-one-weekend.core
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}}
+  :profiles {:uberjar {:aot :all}
+             :dev {:global-vars {*warn-on-reflection* true}}}
   :eastwood {:add-linters [:keyword-typos]})
