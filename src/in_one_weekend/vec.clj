@@ -1,4 +1,5 @@
-(ns in-one-weekend.vec)
+(ns in-one-weekend.vec
+  (:require [taoensso.timbre.profiling :refer [p]]))
 
 (defprotocol Vec
   (x [this])
@@ -36,9 +37,11 @@
 
 (defn ^Vec3 apply-vec
   ([f ^Vec3 v]
-   (apply ->Vec3 (map f (vals v))))
+   (p :apply-vec1
+      (apply ->Vec3 (map f (vals v)))))
   ([f v1 v2]
-   (%apply-vec f v1 v2)))
+   (p :apply-vec2
+      (%apply-vec f v1 v2))))
 
 ;; Calc methods
 

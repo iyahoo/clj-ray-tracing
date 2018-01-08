@@ -1,15 +1,17 @@
 (ns in-one-weekend.camera
   (:require [in-one-weekend.ray :refer [->Ray]]
-            [in-one-weekend.vec :refer :all])
+            [in-one-weekend.vec :refer :all]
+            [taoensso.timbre.profiling :refer [p]])
   (:import [in_one_weekend.vec Vec3]))
 
 (defrecord Camera [lookfrom lookat vup vfov aspect])
 
 (defn orthonormal-basis [a b c]
-  (let [w (unit-vector (minus a b))
-        u (unit-vector (cross c w))
-        v (cross w u)]
-    [w u v]))
+  (p :orthonormal-basis
+     (let [w (unit-vector (minus a b))
+           u (unit-vector (cross c w))
+           v (cross w u)]
+       [w u v])))
 
 (defn camera-ob [lookfrom lookat vup]
   (orthonormal-basis lookfrom lookat vup))
@@ -33,7 +35,8 @@
 
 (defn get-ray [coordinate {:keys [lookfrom] :as camera}]
   {:pre [(= (class camera) Camera)]}
-  (->> (camera-view camera)
-       (correspond-point coordinate)
-       (plus (minus lookfrom))
-       (->Ray lookfrom)))
+  (p :get-ray
+     (->> (camera-view camera)
+          (correspond-point coordinate)
+          (plus (minus lookfrom))
+          (->Ray lookfrom))))

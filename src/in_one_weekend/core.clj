@@ -6,17 +6,19 @@
             [in-one-weekend.vec :refer :all]
             [in-one-weekend.ray :refer :all]
             [in-one-weekend.camera :refer :all]
-            [in-one-weekend.material :refer :all])
+            [in-one-weekend.material :refer :all]
+            [taoensso.timbre.profiling :refer [p]])
   (:import [in_one_weekend.ray Ray]
            [in_one_weekend.hitable_list HitableList]
            [in_one_weekend.sphere Sphere])
   (:gen-class))
 
 (defn air-color [r]
-  (let [unit-direction (unit-vector (:direction r))
-        t (* 0.5 (+ (y unit-direction) 1.0))]
-    (plus (times (->Vec3 1.0 1.0 1.0) (- 1.0 t))
-          (times (->Vec3 0.5 0.7 1.0) t))))
+  (p :air-color
+     (let [unit-direction (unit-vector (:direction r))
+           t (* 0.5 (+ (y unit-direction) 1.0))]
+       (plus (times (->Vec3 1.0 1.0 1.0) (- 1.0 t))
+             (times (->Vec3 0.5 0.7 1.0) t)))))
 
 (defn hit-sphere-attribute [{:keys [lis]} id]
   (:attr (nth lis id)))
@@ -41,31 +43,37 @@
   (str "P3\n" nx " " ny "\n255\n"))
 
 (defn int-color [f-colors]
-  (map #(int (* 255.99 %)) f-colors))
+  (p :int-color
+     (map #(int (* 255.99 %)) f-colors)))
 
 (defn make-coordinates
   "The sequence of coordinates from left top to right down."
   [nx ny]
-  (for [j (range (- ny 1) -1 -1) i (range 0 nx)] [j i]))
+  (p :make-coordinates
+     (for [j (range (- ny 1) -1 -1) i (range 0 nx)] [j i])))
 
 (defn coordinates-to-rate [[j i] ny nx]
   [(/ j (float ny)) (/ i (float nx))])
 
 (defn make-color [ray world depth]
-  (color ray world depth))
+  (p :make-color
+     (color ray world depth)))
 
 (defn make-str [[ir ig ib]]
-  (str ir " " ig " " ib "\n"))
+  (p :make-str
+     (str ir " " ig " " ib "\n")))
 
 (defn gamma-correction [v]
-  (apply-vec #(Math/sqrt %) v))
+  (p :gamma-correction
+     (apply-vec #(Math/sqrt %) v)))
 
 (defn anti-aliasing [[j i] ny nx ns camera world]
-  (->> (repeatedly ns #(coordinates-to-rate [(+ j (rand)) (+ i (rand))] ny nx))
-       (map (comp #(make-color % world 0) #(get-ray % camera)))
-       (reduce plus)
-       (times (/ 1 (float ns)))
-       gamma-correction))
+  (p :anti-aliasing
+     (->> (repeatedly ns #(coordinates-to-rate [(+ j (rand)) (+ i (rand))] ny nx))
+          (map (comp #(make-color % world 0) #(get-ray % camera)))
+          (reduce plus)
+          (times (/ 1 (float ns)))
+          gamma-correction)))
 
 ;; from slanting
 ;; (defn make-camera [nx ny]
@@ -152,4 +160,3 @@
    (with-open [fout (io/writer "out.pnm")]
      (-> fout
          (.write (str (header nx ny) (body nx ny ns)))))))
-
