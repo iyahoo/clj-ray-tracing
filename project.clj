@@ -8,5 +8,5 @@
   :main ^:skip-aot in-one-weekend.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}
-             :dev {:global-vars {*warn-on-reflection* true}}}
+             :dev {:global-vars {*warn-on-reflection* nil}}}
   :eastwood {:add-linters [:keyword-typos]})
