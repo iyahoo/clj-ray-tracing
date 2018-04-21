@@ -9,6 +9,9 @@ Clojure imprementation of ["Ray Tracing - in one weekend"](http://in1weekend.blo
 
 The official github is [petershirley/raytracinginoneweekend](https://github.com/petershirley/raytracinginoneweekend)
 
+# Result
+
+![Sample](./image_log/13_large_out.png)
 
 ## License
 
